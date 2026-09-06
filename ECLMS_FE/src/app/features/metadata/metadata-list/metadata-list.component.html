@@ -1,0 +1,194 @@
+<div class="metadata-page">
+  <div class="page-header flex-between">
+    <div>
+      <h1>Organization Entities</h1>
+      <p class="text-secondary">Configure contracting parties, vendors, and responsible departments</p>
+    </div>
+    
+    <div class="header-actions">
+      <button *ngIf="activeTab === 'vendors'" (click)="openAddVendor()" class="btn btn-primary">
+        <i class='bx bx-plus'></i> Add Vendor
+      </button>
+      <button *ngIf="activeTab === 'departments'" (click)="openAddDept()" class="btn btn-primary">
+        <i class='bx bx-plus'></i> Add Department
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Switcher -->
+  <div class="tabs-container flex-center" style="justify-content: flex-start; margin-top: 24px; gap: 10px;">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'vendors'" 
+      (click)="switchTab('vendors')">
+      <i class='bx bxs-store nav-icon'></i> Vendors
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'departments'" 
+      (click)="switchTab('departments')">
+      <i class='bx bxs-business nav-icon'></i> Departments
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loader-box flex-center" style="height: 250px;">
+    <i class='bx bx-loader-alt bx-spin' style="font-size: 32px;"></i>
+    <p style="margin-left: 10px;">Loading metadata...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="table-card card" style="margin-top: 24px;">
+    <!-- Vendors Tab Content -->
+    <div *ngIf="activeTab === 'vendors'">
+      <div class="search-bar-row flex-between" style="padding: 20px 24px; border-bottom: 1px solid var(--border-color);">
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Search vendors by name..." 
+          [(ngModel)]="vendorSearch" 
+          (ngModelChange)="loadVendors()">
+      </div>
+
+      <div class="table-responsive">
+        <table class="meta-table">
+          <thead>
+            <tr>
+              <th>Vendor Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Tax ID</th>
+              <th>Address</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of vendors">
+              <td class="bold-text">{{ v.name }}</td>
+              <td>{{ v.email }}</td>
+              <td>{{ v.phone }}</td>
+              <td><span class="tax-badge">{{ v.taxId || 'N/A' }}</span></td>
+              <td>{{ v.address }}</td>
+              <td class="text-right actions-cell">
+                <button (click)="openEditVendor(v)" class="btn btn-secondary btn-sm"><i class='bx bx-edit'></i></button>
+                <button (click)="deleteVendor(v.id)" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i></button>
+              </td>
+            </tr>
+            <tr *ngIf="vendors.length === 0">
+              <td colspan="6" class="empty-row text-center">
+                <i class='bx bx-store empty-icon'></i>
+                <p>No vendors registered in the database.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination footer -->
+      <div class="table-footer flex-between" *ngIf="vendorTotalPages > 1" style="padding: 16px 24px; border-top: 1px solid var(--border-color);">
+        <span class="text-secondary text-sm">Page {{ vendorPage + 1 }} of {{ vendorTotalPages }}</span>
+        <div class="flex-center gap-10">
+          <button (click)="prevVendorPage()" class="btn btn-secondary btn-sm" [disabled]="vendorPage === 0">Prev</button>
+          <button (click)="nextVendorPage()" class="btn btn-secondary btn-sm" [disabled]="vendorPage >= vendorTotalPages - 1">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Departments Tab Content -->
+    <div *ngIf="activeTab === 'departments'">
+      <div class="table-responsive">
+        <table class="meta-table">
+          <thead>
+            <tr>
+              <th>Dept Name</th>
+              <th>Code</th>
+              <th>Description</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of departments">
+              <td class="bold-text">{{ d.name }}</td>
+              <td><span class="code-badge">{{ d.code }}</span></td>
+              <td>{{ d.description || 'No description' }}</td>
+              <td class="text-right actions-cell">
+                <button (click)="openEditDept(d)" class="btn btn-secondary btn-sm"><i class='bx bx-edit'></i></button>
+                <button (click)="deleteDept(d.id)" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i></button>
+              </td>
+            </tr>
+            <tr *ngIf="departments.length === 0">
+              <td colspan="4" class="empty-row text-center">
+                <i class='bx bx-briefcase empty-icon'></i>
+                <p>No departments configured in the database.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Form Modal -->
+  <div class="modal-overlay flex-center" *ngIf="showVendorModal">
+    <div class="modal-card glass">
+      <div class="modal-header flex-between">
+        <h3>{{ isEditing ? 'Edit Vendor Details' : 'Register New Vendor' }}</h3>
+        <button (click)="showVendorModal = false" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Vendor Name *</label>
+          <input type="text" class="form-control" placeholder="Company Legal Name" [(ngModel)]="currentVendor.name">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" placeholder="contact@company.com" [(ngModel)]="currentVendor.email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" class="form-control" placeholder="+1 (555) 019-2834" [(ngModel)]="currentVendor.phone">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tax / Corporate ID</label>
+          <input type="text" class="form-control" placeholder="EIN or equivalent code" [(ngModel)]="currentVendor.taxId">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Office Address</label>
+          <input type="text" class="form-control" placeholder="Street, City, State, Country" [(ngModel)]="currentVendor.address">
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button (click)="showVendorModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="saveVendor()" class="btn btn-primary">Save Vendor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Form Modal -->
+  <div class="modal-overlay flex-center" *ngIf="showDeptModal">
+    <div class="modal-card glass">
+      <div class="modal-header flex-between">
+        <h3>{{ isEditing ? 'Edit Department details' : 'Configure New Department' }}</h3>
+        <button (click)="showDeptModal = false" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Department Name *</label>
+          <input type="text" class="form-control" placeholder="e.g. Facilities Management" [(ngModel)]="currentDept.name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department Code *</label>
+          <input type="text" class="form-control" placeholder="e.g. DEPT-FAC" [(ngModel)]="currentDept.code">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" placeholder="Brief outline of operations and responsibilities..." [(ngModel)]="currentDept.description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button (click)="showDeptModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="saveDept()" class="btn btn-primary">Save Department</button>
+      </div>
+    </div>
+  </div>
+</div>

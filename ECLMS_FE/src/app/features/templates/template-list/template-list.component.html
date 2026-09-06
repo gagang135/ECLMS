@@ -1,0 +1,318 @@
+<div class="templates-page">
+
+  <!-- ================= Header ================= -->
+
+  <div class="page-header flex-between">
+
+    <div>
+
+      <h1>Legal Templates</h1>
+
+      <p class="text-secondary">
+        Configure standardized contract layouts and variable placeholders
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <div class="search-box">
+
+        <i class='bx bx-search'></i>
+
+        <input type="text" class="form-control" placeholder="Search Template..." [(ngModel)]="searchText"
+          (input)="searchTemplates()">
+
+      </div>
+
+      <button class="btn btn-primary" (click)="openAddModal()">
+
+        <i class='bx bx-plus'></i>
+
+        Add Template
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- ================= Loading ================= -->
+
+  <div *ngIf="isLoading" class="loading-state flex-center">
+
+    <i class='bx bx-loader-alt bx-spin loading-spinner'></i>
+
+    <p style="margin-left:10px">
+
+      Loading Templates...
+
+    </p>
+
+  </div>
+
+  <!-- ================= Templates ================= -->
+
+  <div *ngIf="!isLoading" class="templates-grid">
+
+    <div class="card template-card" *ngFor="let t of filteredTemplates; let i = index">
+
+      <div class="template-header flex-between">
+
+        <div>
+
+          <h3 class="template-title">
+
+            {{t.name}}
+
+          </h3>
+
+          <small>
+
+            Version {{t.versionString}}
+
+          </small>
+
+        </div>
+
+        <span class="badge" [ngClass]="{
+
+            'badge-success': t.status === 'PUBLISHED',
+
+            'badge-warning': t.status === 'DRAFT',
+
+            'badge-danger': t.status === 'ARCHIVED'
+
+          }">
+
+          {{t.status}}
+
+        </span>
+
+      </div>
+
+      <p class="template-desc">
+
+        {{t.description}}
+
+      </p>
+
+      <div class="variables-box" *ngIf="t.variables">
+
+        <div class="box-label">
+
+          Variables
+
+        </div>
+
+        <div class="tokens-list">
+
+          <span class="token" *ngFor="let variable of t.variables.split(',')">
+
+            {{variable.trim()}}
+
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="template-content">
+
+        {{t.content}}
+
+      </div>
+
+      <div class="template-actions">
+
+        <button class="btn btn-primary" (click)="editTemplate(t)">
+
+          <i class='bx bx-edit'></i>
+
+          Edit
+
+        </button>
+
+        <button class="btn btn-danger" (click)="deleteTemplate(t)">
+
+          <i class='bx bx-trash'></i>
+
+          Delete
+
+        </button>
+
+      </div>
+
+      <!-- <div class="template-actions">
+
+        <button class="btn btn-success" *ngIf="t.status !== 'PUBLISHED'" (click)="publishTemplate(t)">
+
+          Publish
+
+        </button>
+
+        <button class="btn btn-warning" *ngIf="t.status !== 'ARCHIVED'" (click)="archiveTemplate(t)">
+
+          Archive
+
+        </button>
+
+      </div> -->
+
+    </div>
+
+    <div class="card template-card empty-card flex-center flex-direction-column" *ngIf="filteredTemplates.length===0">
+
+      <i class='bx bx-layout empty-icon'></i>
+
+      <p class="text-secondary">
+
+        No templates available.
+
+      </p>
+
+    </div>
+
+  </div>
+  <!-- ================= Modal ================= -->
+
+  <div class="modal-overlay flex-center" *ngIf="showAddModal">
+
+    <div class="modal-card glass template-modal">
+
+      <div class="modal-header flex-between">
+
+        <h3>
+
+          {{ isEditMode
+          ? 'Update Legal Template'
+          : 'Create New Legal Template' }}
+
+        </h3>
+
+        <button class="modal-close-btn" (click)="closeModal()">
+
+          &times;
+
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Template Name -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Template Name *
+
+          </label>
+
+          <input type="text" class="form-control" placeholder="Enter Template Name" [(ngModel)]="templateForm.name">
+
+        </div>
+
+        <!-- Description + Version -->
+
+        <div class="form-row-2">
+
+          <div class="form-group">
+
+            <label class="form-label">
+
+              Description *
+
+            </label>
+
+            <input type="text" class="form-control" placeholder="Enter Description"
+              [(ngModel)]="templateForm.description">
+
+          </div>
+
+          <div class="form-group">
+
+            <label class="form-label">
+
+              Version
+
+            </label>
+
+            <input type="text" class="form-control" placeholder="1.0" [(ngModel)]="templateForm.versionString">
+
+          </div>
+
+        </div>
+
+        <!-- Variables -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Variables
+
+          </label>
+
+          <input type="text" class="form-control" placeholder="VendorName,DepartmentName,StartDate"
+            [(ngModel)]="templateForm.variables">
+
+        </div>
+
+        <!-- Template Content -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Template Content *
+
+          </label>
+
+          <textarea rows="10" class="form-control template-textarea" placeholder="Enter Contract Template..."
+            [(ngModel)]="templateForm.content">
+
+          </textarea>
+
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+
+      <div class="modal-footer flex-between">
+
+        <button class="btn btn-secondary" (click)="closeModal()">
+
+          Cancel
+
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isSaving" (click)="saveTemplate()">
+
+          <span *ngIf="!isSaving">
+
+            {{ isEditMode
+            ? 'Update Template'
+            : 'Save Template' }}
+
+          </span>
+
+          <span *ngIf="isSaving">
+
+            <i class='bx bx-loader-alt bx-spin'></i>
+
+            Saving...
+
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

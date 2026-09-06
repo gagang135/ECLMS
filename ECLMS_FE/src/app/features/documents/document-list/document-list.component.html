@@ -1,0 +1,96 @@
+<div class="documents-page">
+  <div class="page-header">
+    <h1>Document Manager</h1>
+    <p class="text-secondary">Attach, download, and audit contract-linked files and attachments</p>
+  </div>
+
+  <div class="doc-layout">
+    <!-- Left column: Contract selection list -->
+    <div class="card contract-nav-panel">
+      <h3 class="nav-title">Select Agreement</h3>
+      <div *ngIf="isLoadingContracts" class="loader-box flex-center">
+        <i class='bx bx-loader-alt bx-spin'></i> Loading...
+      </div>
+      <div class="contract-list-container" *ngIf="!isLoadingContracts">
+        <div class="contract-nav-item" [class.active]="selectedContractId === 'general'"
+          (click)="selectGeneralDocuments()">
+          <div class="c-name"><i class='bx bx-folder' style="margin-right: 8px;"></i>General / Shared Files</div>
+          <div class="c-vendor">Global Shared Repository</div>
+        </div>
+        <div class="contract-nav-item" *ngFor="let c of contracts" [class.active]="c.id === selectedContractId"
+          (click)="selectContract(c)">
+          <div class="c-name">{{ c.name }}</div>
+          <div class="c-vendor">{{ c.vendorName }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: Selected contract documents CRUD -->
+    <div class="card doc-crud-panel">
+      <div class="doc-panel-header">
+        <h2>Documents for: <span class="text-primary">{{ selectedContractName || 'None Selected' }}</span></h2>
+      </div>
+
+      <!-- File upload CRUD action section -->
+      <div class="upload-section" *ngIf="selectedContractId">
+        <div class="upload-zone">
+          <input type="file" id="fileUpload" class="file-input-hidden" (change)="onFileSelected($event)">
+          <label for="fileUpload" class="file-label">
+            <i class='bx bx-cloud-upload upload-icon'></i>
+            <span *ngIf="!selectedFile">Click to browse or drop agreement files here</span>
+            <span *ngIf="selectedFile" class="text-success font-monospace">{{ selectedFile.name }} ({{
+              formatBytes(selectedFile.size) }})</span>
+          </label>
+        </div>
+        <button (click)="uploadFile()" class="btn btn-primary" [disabled]="!selectedFile || isUploading"
+          style="margin-top: 16px;">
+          <span *ngIf="isUploading"><i class='bx bx-loader-alt bx-spin'></i> Uploading...</span>
+          <span *ngIf="!isUploading"><i class='bx bx-upload'></i> Attach Document</span>
+        </button>
+      </div>
+
+      <!-- Document Table -->
+      <div class="doc-table-container">
+        <div *ngIf="isLoadingDocs" class="loader-box flex-center" style="height: 150px;">
+          <i class='bx bx-loader-alt bx-spin'></i> Loading attachments...
+        </div>
+
+        <table class="doc-table" *ngIf="!isLoadingDocs && documents.length > 0">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let doc of documents">
+              <td class="bold-text"><i class='bx bx-file' style="margin-right: 8px; color: var(--primary-hover);"></i>{{
+                doc.fileName }}</td>
+              <td>{{ doc.fileType }}</td>
+              <td>{{ formatBytes(doc.docSize) }}</td>
+              <td class="text-right actions-cell">
+                <!-- <button (click)="previewFile(doc)" class="btn btn-secondary btn-sm" title="Preview File">
+                  <i class='bx bx-show'></i>
+                </button> -->
+                <button (click)="downloadFile(doc)" class="btn btn-secondary btn-sm" title="Download File">
+                  <i class='bx bx-download'></i>
+                </button>
+                <button (click)="deleteFile(doc.id)" class="btn btn-danger btn-sm" title="Delete File">
+                  <i class='bx bx-trash'></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty state -->
+        <div class="empty-docs flex-center flex-direction-column" *ngIf="!isLoadingDocs && documents.length === 0">
+          <i class='bx bx-folder-open empty-icon'></i>
+          <p class="text-secondary">No files attached to this contract yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

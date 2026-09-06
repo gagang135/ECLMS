@@ -1,0 +1,253 @@
+.workflows-page {
+  padding-bottom: 40px;
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.launch-card {
+  padding: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.launch-form {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 200px;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .launch-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.workflow-grid {
+  margin-top: 24px;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.workflow-table th {
+  padding: 18px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.workflow-table td {
+  padding: 18px 24px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.workflow-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.bold-text {
+  font-weight: 600;
+  color: #fff;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-number-bubble {
+  width: 28px;
+  height: 28px;
+  background-color: var(--primary-glow);
+  color: var(--primary-hover);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.step-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Modals & Overlays */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+}
+
+.history-modal {
+  max-width: 600px;
+}
+
+.modal-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.history-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Radio buttons styles */
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radio-label input {
+  margin-right: 8px;
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}
+
+.radio-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Timeline Audit Trail */
+.audit-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.audit-timeline::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background-color: var(--border-color);
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.timeline-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--surface-color);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  z-index: 1;
+}
+
+.bg-success-glow {
+  background-color: var(--surface-color);
+  border-color: var(--success);
+}
+
+.bg-danger-glow {
+  background-color: var(--surface-color);
+  border-color: var(--danger);
+}
+
+.timeline-content {
+  flex: 1;
+  background-color: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 14px 18px;
+}
+
+.timeline-header {
+  margin-bottom: 4px;
+}
+
+.timeline-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.timeline-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.timeline-step {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.timeline-comment {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-primary);
+}

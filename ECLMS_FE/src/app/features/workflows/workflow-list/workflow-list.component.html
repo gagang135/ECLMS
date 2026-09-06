@@ -1,0 +1,158 @@
+<div class="workflows-page">
+  <div class="page-header">
+    <h1>Workflows & Approvals</h1>
+    <p class="text-secondary">Track, review, and audit legal signing processes</p>
+  </div>
+
+  <!-- Launch Workflow Card -->
+  <div class="card launch-card">
+    <h3 class="section-title">Launch Sign-off Cycle</h3>
+    <div class="launch-form">
+      <div class="form-group select-group">
+        <label class="form-label">Select Contract Template</label>
+        <select class="form-control" [(ngModel)]="selectedTemplateId" (change)="onTemplateChange()">
+          <option value="">Choose Template...</option>
+          <option *ngFor="let t of templates" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group select-group">
+        <label class="form-label">Target Contract Agreement</label>
+        <select class="form-control" [(ngModel)]="selectedContract" [disabled]="!selectedTemplateId">
+          <option value="">Choose Contract...</option>
+          <option *ngFor="let c of filteredContracts" [value]="c.id">{{ c.name }} ({{ c.vendorName }})</option>
+        </select>
+      </div>
+
+      <div class="form-group action-group">
+        <label class="form-label">&nbsp;</label>
+        <button (click)="startWorkflow()" class="btn btn-primary btn-block">Initiate Workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="workflow-grid">
+    <!-- Active Workflows Table -->
+    <div class="card table-card">
+      <h3 class="section-title" style="margin: 24px;">Active Processes</h3>
+      
+      <div class="table-responsive">
+        <table class="workflow-table">
+          <thead>
+            <tr>
+              <th>Contract Name</th>
+              <th>Workflow Definition</th>
+              <th>Current Step</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inst of instances">
+              <td class="bold-text">{{ inst.contractName }}</td>
+              <td>{{ inst.workflowName }}</td>
+              <td>
+                <div class="step-indicator">
+                  <span class="step-number-bubble">S{{ inst.currentStepNumber }}</span>
+                  <span class="step-label">Step Approval</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': inst.status === 'COMPLETED' || inst.status === 'APPROVED',
+                  'badge-warning': inst.status === 'IN_PROGRESS',
+                  'badge-danger': inst.status === 'REJECTED'
+                }">{{ inst.status.replace('_', ' ') }}</span>
+              </td>
+              <td class="text-right">
+                <button 
+                  *ngIf="inst.status === 'IN_PROGRESS'" 
+                  (click)="openActionModal(inst.id)" 
+                  class="btn btn-primary btn-sm" 
+                  style="margin-right: 8px;">
+                  Action
+                </button>
+                <button (click)="openHistoryModal(inst)" class="btn btn-secondary btn-sm">
+                  History
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="instances.length === 0">
+              <td colspan="5" class="empty-row text-center">
+                <i class='bx bx-git-repo-forked empty-icon'></i>
+                <p>No active workflow instances running.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Modal Overlay -->
+  <div class="modal-overlay flex-center" *ngIf="showActionModal">
+    <div class="modal-card glass">
+      <div class="modal-header flex-between">
+        <h3>Record Sign-off Action</h3>
+        <button (click)="showActionModal = false" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Review Action</label>
+          <div class="flex-center gap-20" style="margin-top: 10px; margin-bottom: 20px; justify-content: flex-start;">
+            <label class="radio-label">
+              <input type="radio" name="actionType" value="APPROVED" [(ngModel)]="actionType">
+              <span class="radio-text text-success"><i class='bx bx-check-circle'></i> Approve</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="actionType" value="REJECTED" [(ngModel)]="actionType">
+              <span class="radio-text text-danger"><i class='bx bx-x-circle'></i> Reject</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Review Comments / Justification</label>
+          <textarea class="form-control" placeholder="Provide justification or checklist feedback..." [(ngModel)]="actionComments"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button (click)="showActionModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="submitAction()" class="btn" [ngClass]="actionType === 'APPROVED' ? 'btn-primary' : 'btn-danger'">Record Decision</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal Overlay -->
+  <div class="modal-overlay flex-center" *ngIf="showHistoryModal">
+    <div class="modal-card glass history-modal">
+      <div class="modal-header flex-between">
+        <h3>Audit Trail: {{ activeHistoryInstanceName }}</h3>
+        <button (click)="showHistoryModal = false" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body history-body">
+        <div class="audit-timeline">
+          <div class="timeline-item" *ngFor="let item of history">
+            <div class="timeline-icon" [ngClass]="item.status === 'APPROVED' ? 'bg-success-glow' : 'bg-danger-glow'">
+              <i class='bx' [ngClass]="item.status === 'APPROVED' ? 'bx-check text-success' : 'bx-x text-danger'"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header flex-between">
+                <span class="timeline-user">{{ item.userName || 'Auditor User' }}</span>
+                <span class="timeline-date">{{ item.actionDate | date:'short' }}</span>
+              </div>
+              <div class="timeline-step">Step {{ item.stepNumber }} - {{ item.status }}</div>
+              <div class="timeline-comment">"{{ item.comments || 'No comments left' }}"</div>
+            </div>
+          </div>
+          <div *ngIf="history.length === 0" class="text-center text-muted" style="padding: 20px;">
+            No action history logged yet.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button (click)="showHistoryModal = false" class="btn btn-secondary">Close Audit Trail</button>
+      </div>
+    </div>
+  </div>
+</div>

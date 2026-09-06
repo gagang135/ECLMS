@@ -1,0 +1,187 @@
+.documents-page {
+  padding-bottom: 40px;
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.doc-layout {
+  display: grid;
+  grid-template-columns: 1fr 2.5fr;
+  gap: 24px;
+  margin-top: 32px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .doc-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Nav Panel */
+.contract-nav-panel {
+  padding: 24px 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.nav-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  padding: 0 24px;
+}
+
+.contract-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.contract-nav-item {
+  padding: 14px 24px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.contract-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.contract-nav-item.active {
+  background-color: var(--primary-glow);
+  border-left-color: var(--primary);
+}
+
+.contract-nav-item .c-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.contract-nav-item .c-vendor {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Crud Panel */
+.doc-crud-panel {
+  padding: 32px;
+}
+
+.doc-panel-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.doc-panel-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Upload zone */
+.upload-section {
+  background-color: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.upload-zone {
+  position: relative;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 20px;
+}
+
+.upload-icon {
+  font-size: 48px;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+/* Doc Table */
+.doc-table-container {
+  margin-top: 16px;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.doc-table th {
+  padding: 16px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.doc-table td {
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.bold-text {
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-bottom: none !important; /* avoid nesting border issue */
+}
+
+.actions-cell .btn {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.empty-docs {
+  padding: 48px 0;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.loader-box {
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  gap: 8px;
+}

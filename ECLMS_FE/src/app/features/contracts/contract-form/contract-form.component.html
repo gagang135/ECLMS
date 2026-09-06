@@ -1,0 +1,121 @@
+<div class="contract-form-page">
+  <div class="page-header">
+    <h1>{{ isEditMode ? 'Edit Contract' : 'Create Contract' }}</h1>
+    <p class="text-secondary">{{ isEditMode ? 'Modify agreement metadata and clauses' : 'Draft a new agreement structure from legal templates' }}</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state flex-center">
+    <i class='bx bx-loader-alt bx-spin loading-spinner'></i>
+    <p style="margin-left: 10px;">Loading agreement details...</p>
+  </div>
+
+  <form *ngIf="!isLoading" (ngSubmit)="saveContract()" #contractForm="ngForm" class="form-container">
+    <div class="form-grid">
+      <!-- Left Column: Details -->
+      <div class="form-left-col">
+        <div class="card form-card">
+          <h3 class="section-title">Contract Metadata</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="name">Contract Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-control" 
+              placeholder="e.g. Master Service Agreement 2026" 
+              [(ngModel)]="contract.name" 
+              required>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="vendorId">Vendor / Contracting Party *</label>
+              <select id="vendorId" name="vendorId" class="form-control" [(ngModel)]="contract.vendorId" required>
+                <option value="">Select Vendor</option>
+                <option *ngFor="let vendor of vendors" [value]="vendor.id">{{ vendor.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="departmentId">Responsible Department *</label>
+              <select id="departmentId" name="departmentId" class="form-control" [(ngModel)]="contract.departmentId" required>
+                <option value="">Select Department</option>
+                <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label" for="startDate">Start Date</label>
+              <input type="date" id="startDate" name="startDate" class="form-control" [(ngModel)]="contract.startDate">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="endDate">End Date</label>
+              <input type="date" id="endDate" name="endDate" class="form-control" [(ngModel)]="contract.endDate">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="versionString">Version</label>
+              <input type="text" id="versionString" name="versionString" class="form-control" placeholder="1.0" [(ngModel)]="contract.versionString">
+            </div>
+          </div>
+        </div>
+
+        <!-- Clauses / Editor Card -->
+        <div class="card form-card editor-card">
+          <h3 class="section-title">Contract Clauses</h3>
+          <div class="form-group">
+            <textarea 
+              id="content" 
+              name="content" 
+              class="form-control editor-textarea" 
+              placeholder="Type or copy your legal agreement clauses here..." 
+              [(ngModel)]="contract.content">
+            </textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Template Controls -->
+      <div class="form-right-col">
+        <div class="card form-card template-card">
+          <h3 class="section-title">Template Configuration</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="templateId">Legal Template</label>
+            <select id="templateId" name="templateId" class="form-control" [(ngModel)]="contract.templateId" (change)="onTemplateChange()">
+              <option value="">No Template (Free Text)</option>
+              <option *ngFor="let t of templates" [value]="t.id">{{ t.name }} (v{{ t.versionString }})</option>
+            </select>
+          </div>
+
+          <!-- Variable fields list -->
+          <div class="variables-section" *ngIf="variableKeys.length > 0">
+            <h4 class="vars-title">Template Variables</h4>
+            <div *ngFor="let key of variableKeys" class="form-group">
+              <label class="form-label variable-label">{{ key }}</label>
+              <input 
+                type="text" 
+                [name]="'var_' + key" 
+                class="form-control" 
+                [(ngModel)]="contract.templateVariables[key]"
+                placeholder="Enter value...">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Footer -->
+    <div class="form-actions flex-between">
+      <a routerLink="/contracts" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+        <span *ngIf="isSaving"><i class='bx bx-loader-alt bx-spin'></i> Saving...</span>
+        <span *ngIf="!isSaving">{{ isEditMode ? 'Update Agreement' : 'Save Agreement' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

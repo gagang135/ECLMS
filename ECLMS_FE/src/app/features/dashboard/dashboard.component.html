@@ -1,0 +1,136 @@
+<div class="dashboard-page">
+  <div class="page-header flex-between">
+    <div>
+      <h1>Operational Dashboard</h1>
+      <p class="text-secondary">Real-time metrics and contract lifecycle indicators</p>
+    </div>
+    <button (click)="loadDashboardData()" class="btn btn-secondary btn-icon" title="Refresh Data">
+      <i class='bx bx-refresh' [class.bx-spin]="isLoading"></i>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state flex-center flex-direction-column">
+    <i class='bx bx-loader-alt bx-spin loading-spinner'></i>
+    <p>Loading analytics dashboard...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <!-- Stat Grid -->
+    <div class="stats-grid">
+      <div class="card stat-card border-left-primary">
+        <div class="stat-content">
+          <span class="stat-label">Total Contracts</span>
+          <h3 class="stat-value">{{ stats.totalContracts }}</h3>
+        </div>
+        <div class="stat-icon-wrapper primary-bg-glow">
+          <i class='bx bxs-file-doc'></i>
+        </div>
+      </div>
+
+      <div class="card stat-card border-left-success">
+        <div class="stat-content">
+          <span class="stat-label">Active Vendors</span>
+          <h3 class="stat-value">{{ stats.totalVendors }}</h3>
+        </div>
+        <div class="stat-icon-wrapper success-bg-glow">
+          <i class='bx bxs-group'></i>
+        </div>
+      </div>
+
+      <div class="card stat-card border-left-info">
+        <div class="stat-content">
+          <span class="stat-label">Departments</span>
+          <h3 class="stat-value">{{ stats.totalDepartments }}</h3>
+        </div>
+        <div class="stat-icon-wrapper info-bg-glow">
+          <i class='bx bxs-business'></i>
+        </div>
+      </div>
+
+      <div class="card stat-card border-left-danger">
+        <div class="stat-content">
+          <span class="stat-label">Expiring (30 Days)</span>
+          <h3 class="stat-value text-danger">{{ stats.contractsExpiringSoon }}</h3>
+        </div>
+        <div class="stat-icon-wrapper danger-bg-glow">
+          <i class='bx bxs-time-five'></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts & Metrics Row -->
+    <div class="dashboard-row">
+      <!-- Status Distribution Card -->
+      <div class="card distribution-card">
+        <h4 class="card-title">Contracts by Status</h4>
+        <p class="card-subtitle">Current workflow distribution of active agreements</p>
+
+        <div class="status-list">
+          <div *ngFor="let status of statusKeys" class="status-item">
+            <div class="status-info flex-between">
+              <span class="status-name">{{ status.replace('_', ' ') }}</span>
+              <span class="status-count">{{ stats.contractsByStatus[status] }} ({{ getStatusPercentage(stats.contractsByStatus[status]) }}%)</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div 
+                class="progress-bar-fill" 
+                [style.width.%]="getStatusPercentage(stats.contractsByStatus[status])"
+                [ngClass]="{
+                  'bg-primary': status === 'UNDER_REVIEW' || status === 'IN_REVIEW' || status === 'DRAFT',
+                  'bg-success': status === 'APPROVED' || status === 'ACTIVE',
+                  'bg-warning': status === 'EXPIRED',
+                  'bg-danger': status === 'REJECTED'
+                }">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="card quick-actions-card">
+        <h4 class="card-title">Quick Actions</h4>
+        <p class="card-subtitle">Common system operations and shortcuts</p>
+
+        <div class="actions-grid">
+          <a href="/contracts?action=new" class="action-tile">
+            <i class='bx bx-plus-circle action-icon text-primary'></i>
+            <span class="action-name">New Contract</span>
+            <span class="action-desc">Draft a new contract</span>
+          </a>
+
+          <a href="/templates" class="action-tile">
+            <i class='bx bx-layout action-icon text-success'></i>
+            <span class="action-name">Templates</span>
+            <span class="action-desc">Configure template clauses</span>
+          </a>
+
+          <a href="/workflows" class="action-tile">
+            <i class='bx bx-git-commit action-icon text-warning'></i>
+            <span class="action-name">Approvals</span>
+            <span class="action-desc">Review pending workflow approvals</span>
+          </a>
+
+          <div class="action-tile" (click)="toggleReportDropdown()" style="cursor: pointer; position: relative;">
+            <i class='bx bx-cloud-download action-icon text-info'></i>
+            <span class="action-name">Download Reports</span>
+            <span class="action-desc">Export PDF/Excel summaries</span>
+
+            <!-- Dropdown Menu -->
+            <div class="report-dropdown" *ngIf="showReportDropdown" (click)="$event.stopPropagation()">
+              <button class="dropdown-item" (click)="downloadReport('pdf')">
+                <i class='bx bxs-file-pdf text-danger'></i> Export PDF
+              </button>
+              <button class="dropdown-item" (click)="downloadReport('excel')">
+                <i class='bx bxs-file-json text-success'></i> Export Excel
+              </button>
+              <button class="dropdown-item" (click)="downloadReport('csv')">
+                <i class='bx bx-file text-info'></i> Export CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

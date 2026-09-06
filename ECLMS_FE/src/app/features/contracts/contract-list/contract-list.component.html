@@ -1,0 +1,172 @@
+<div class="contracts-page">
+  <div class="page-header flex-between">
+    <div>
+      <h1>Contracts Repository</h1>
+      <p class="text-secondary">Search, audit, and manage legal agreements</p>
+    </div>
+    <a routerLink="/contracts/new" class="btn btn-primary">
+      <i class='bx bx-plus'></i> New Contract
+    </a>
+  </div>
+
+  <!-- Filters Row -->
+  <div class="card filters-card">
+    <div class="filters-row">
+      <div class="filter-col search-col">
+        <label class="form-label">Search Agreements</label>
+        <div class="input-wrapper">
+          <i class='bx bx-search search-icon'></i>
+          <input 
+            type="text" 
+            class="form-control filter-input" 
+            placeholder="Search by title, contents..." 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="onFilterChange()">
+        </div>
+      </div>
+
+      <div class="filter-col">
+        <label class="form-label">Status</label>
+        <select class="form-control" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+          <option value="">All Statuses</option>
+          <option value="DRAFT">Draft</option>
+          <option value="IN_REVIEW">Under Review</option>
+          <option value="ACTIVE">Active (Approved)</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="EXPIRED">Expired</option>
+        </select>
+      </div>
+
+      <div class="filter-col">
+        <label class="form-label">Department</label>
+        <select class="form-control" [(ngModel)]="selectedDept" (change)="onFilterChange()">
+          <option value="">All Departments</option>
+          <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-col">
+        <label class="form-label">Vendor</label>
+        <select class="form-control" [(ngModel)]="selectedVendor" (change)="onFilterChange()">
+          <option value="">All Vendors</option>
+          <option *ngFor="let vendor of vendors" [value]="vendor.id">{{ vendor.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-col clear-col">
+        <label class="form-label">&nbsp;</label>
+        <button (click)="clearFilters()" class="btn btn-secondary btn-block">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card table-card">
+    <div *ngIf="isLoading" class="loading-state flex-center">
+      <i class='bx bx-loader-alt bx-spin loading-spinner'></i>
+      <p style="margin-left: 10px;">Loading contracts database...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <div class="table-responsive">
+        <table class="contracts-table">
+          <thead>
+            <tr>
+              <th>Contract Name</th>
+              <th>Vendor</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Valid Until</th>
+              <th>Risk Score</th>
+              <th>Ver.</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let contract of contracts">
+              <td class="contract-title-cell">
+                <i class='bx bx-file-blank file-icon'></i>
+                <div class="title-info">
+                  <span class="c-name">{{ contract.name }}</span>
+                  <span class="c-template">{{ contract.templateName || 'No Template' }}</span>
+                </div>
+              </td>
+              <td>{{ contract.vendorName }}</td>
+              <td>{{ contract.departmentName }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': contract.status === 'APPROVED' || contract.status === 'ACTIVE',
+                  'badge-warning': contract.status === 'UNDER_REVIEW' || contract.status === 'IN_REVIEW' || contract.status === 'DRAFT',
+                  'badge-danger': contract.status === 'REJECTED' || contract.status === 'EXPIRED'
+                }">{{ contract.status.replace('_', ' ') }}</span>
+              </td>
+              <td>{{ contract.endDate | date:'mediumDate' }}</td>
+              <td>
+                <span class="risk-indicator" [ngClass]="{
+                  'text-success': contract.riskScore <= 15,
+                  'text-warning': contract.riskScore > 15 && contract.riskScore <= 35,
+                  'text-danger': contract.riskScore > 35
+                }">
+                  {{ contract.riskScore || '0.00' }}%
+                </span>
+              </td>
+              <td>v{{ contract.versionString }}</td>
+              <td class="text-right actions-cell">
+                <a [routerLink]="['/contracts/edit', contract.id]" class="btn-action btn-edit" title="Edit">
+                  <i class='bx bx-edit-alt'></i>
+                </a>
+                <button (click)="openRenewModal(contract.id)" class="btn-action btn-renew" title="Renew">
+                  <i class='bx bx-sync'></i>
+                </button>
+                <button (click)="deleteContract(contract.id)" class="btn-action btn-delete" title="Delete">
+                  <i class='bx bx-trash'></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="contracts.length === 0">
+              <td colspan="8" class="empty-row text-center">
+                <i class='bx bx-folder-open empty-icon'></i>
+                <p>No contracts found matching the filters.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="table-footer flex-between" *ngIf="totalPages > 1">
+        <span class="total-label">Showing {{ contracts.length }} of {{ totalElements }} agreements</span>
+        <div class="pagination flex-center gap-10">
+          <button (click)="prevPage()" [disabled]="page === 0" class="btn btn-secondary btn-sm">
+            <i class='bx bx-chevron-left'></i> Prev
+          </button>
+          <span class="page-indicator">Page {{ page + 1 }} of {{ totalPages }}</span>
+          <button (click)="nextPage()" [disabled]="page === totalPages - 1" class="btn btn-secondary btn-sm">
+            Next <i class='bx bx-chevron-right'></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Renew Contract Modal Overlay -->
+  <div class="modal-overlay flex-center" *ngIf="showRenewModal">
+    <div class="modal-card glass">
+      <div class="modal-header flex-between">
+        <h3>Renew Contract Agreement</h3>
+        <button (click)="showRenewModal = false" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary" style="margin-bottom: 20px;">Provide a new validity extension date for the legal agreement.</p>
+        <div class="form-group">
+          <label class="form-label">New End Date</label>
+          <input type="date" class="form-control" [(ngModel)]="renewalDate">
+        </div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button (click)="showRenewModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="submitRenewal()" class="btn btn-primary">Extend Validity</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="layout-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <i class='bx bx-hive logo-icon'></i>
+      <span class="logo-text">ECLMS</span>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-dashboard nav-icon'></i>
+        <span>Dashboard</span>
+      </a>
+      
+      <a routerLink="/contracts" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-file-doc nav-icon'></i>
+        <span>Contracts</span>
+      </a>
+      
+      <a routerLink="/templates" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-layout nav-icon'></i>
+        <span>Templates</span>
+      </a>
+      
+      <a routerLink="/workflows" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-git-branch nav-icon'></i>
+        <span>Workflows</span>
+      </a>
+      
+      <a routerLink="/documents" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-folder-open nav-icon'></i>
+        <span>Documents</span>
+      </a>
+      
+      <a routerLink="/metadata" routerLinkActive="active" class="nav-item">
+        <i class='bx bxs-cog nav-icon'></i>
+        <span>Entities</span>
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          {{ currentUser?.fullName?.charAt(0) || 'U' }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ currentUser?.fullName || 'User' }}</div>
+          <div class="user-role">{{ currentUser?.username || 'admin' }}</div>
+        </div>
+      </div>
+      <button (click)="logout()" class="logout-btn" title="Logout">
+        <i class='bx bx-log-out'></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main View Frame -->
+  <div class="main-frame">
+    <!-- Navbar -->
+    <header class="navbar flex-between glass">
+      <div class="navbar-title">
+        Enterprise Contract Lifecycle Management System
+      </div>
+      <div class="navbar-actions flex-center gap-10">
+        <span class="badge badge-info">
+          <i class='bx bx-check-shield'></i> Secure Session
+        </span>
+      </div>
+    </header>
+    
+    <!-- View Content -->
+    <main class="content-view">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
